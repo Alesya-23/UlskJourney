@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "579706466964",
+    "firebase_url": "https://ulskjourney-default-rtdb.firebaseio.com",
+    "project_id": "ulskjourney",
+    "storage_bucket": "ulskjourney.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579706466964:android:a7b09744ac59da3daaba81",
+        "android_client_info": {
+          "package_name": "com.ulskjourney.ulskjourney"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "579706466964-5etp9b98j07k14f49q2iu5a07m6poksd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtbq4QURC5MDmI3SXXq46_UanxZSHWTyg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "579706466964-5etp9b98j07k14f49q2iu5a07m6poksd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

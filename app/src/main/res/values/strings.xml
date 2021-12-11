@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">UlskJourney</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Зарегистрироваться</string>
+    <string name="forgot_password">Забыл пароль</string>
+    <string name="registration">Регистрация</string>
+    <string name="registration_name">Ваше имя или псевдоним</string>
+    <string name="e_mail_sign_up">E-mail</string>
+    <string name="come_up_sign_up_password">Придумайте пароль</string>
+    <string name="repeat_sign_up_password">Повторите пароль</string>
+    <string name="agree_with_project_rules">Я согласен с <u>правилами проекта </u></string>
+    <string name="get_news_e_mail">Я хочу получать рассылку о новостях проекта на e-mail</string>
+    <string name="our_data_label">Ваши данные</string>
+    <string name="surname_edit">Фамилия</string>
+    <string name="name_edit">Имя</string>
+    <string name="middle_name_edit">Отчество</string>
+    <string name="telephone_edit">Телефон</string>
+    <string name="city_edit">Город</string>
+    <string name="save_edit">Сохранить</string>
+    <string name="search_place_text_view">Поиск места</string>
+    <string name="input_name_place_edit">Введите название места</string>
+    <string name="input_description_mark_edit">Введите описание метки</string>
+    <string name="add_photo_button">Добавить фото</string>
+    <string name="add_mark_place_button">Добавить метку</string>
+    <string name="input_longitude_edit">Введите долготу</string>
+    <string name="input_latitude_edit">Введите широту</string>
+    <string name="new_mark_label">Новая метка</string>
+    <string name="mark_label">Метка</string>
+    <string name="name_mark_label">Название метки</string>
+    <string name="button_profile">Профиль</string>
+    <string name="buttonMarks">Метки</string>
+    <string name="edit_text_login">Логин</string>
+</resources>
