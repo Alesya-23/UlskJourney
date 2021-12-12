@@ -23,7 +23,7 @@ class AddNewMarkFragment : Fragment(R.layout.add_mark_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         addMarkFragmentBinding = AddMarkFragmentBinding.bind(view)
-        addMarkFragmentBinding.addMarkButton.setOnClickListener{
+        addMarkFragmentBinding.addMarkButton.setOnClickListener {
             addNewMark()
         }
         activity?.title = "Новая метка"
@@ -36,10 +36,14 @@ class AddNewMarkFragment : Fragment(R.layout.add_mark_fragment) {
             latitude = textViewLatitude.text.toString().toDouble()
             description = descriptionEdit.text.toString()
         }
-        if(checkFillFields()){
+        if (checkFillFields()) {
             //добавляем точку
             addMarkToDatabase()
-        }
+        } else return Toast.makeText(
+            activity?.applicationContext,
+            "Не заполнены поля",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun checkFillFields(): Boolean {
@@ -58,19 +62,19 @@ class AddNewMarkFragment : Fragment(R.layout.add_mark_fragment) {
         return true
     }
 
-    private fun addMarkToDatabase(){
+    private fun addMarkToDatabase() {
         val map: HashMap<String, Any> =
-                hashMapOf(
-                        "id" to 1 ,
-                        "name" to name,
-                        "longitude" to longitude.toString(),
-                        "latitude" to latitude.toString(),
-                        "description" to description,
-                )
+            hashMapOf(
+                "id" to 1,
+                "name" to name,
+                "longitude" to longitude.toString(),
+                "latitude" to latitude.toString(),
+                "description" to description,
+            )
         FirebaseAuth.getInstance().signOut()
         //проверка есть ли такой ребёнок в бд
         val rootRef = FirebaseDatabase.getInstance().reference.child("map").child("marks")
-                .child(name)
+            .child(name)
         rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
@@ -84,14 +88,13 @@ class AddNewMarkFragment : Fragment(R.layout.add_mark_fragment) {
         })
         if (!isEdit) {
             FirebaseDatabase.getInstance().reference.child("map").child("marks")
-                    .child(name).setValue(map)
+                .child(name).setValue(map)
             val toast: Toast = Toast.makeText(
-                    activity?.applicationContext,
-                    "Метка добавлена",
-                    Toast.LENGTH_LONG
+                activity?.applicationContext,
+                "Метка добавлена",
+                Toast.LENGTH_LONG
             )
             return toast.show()
-
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.ulskjourney.ulskjourney.model.models
 
-import android.os.Parcelable
-
 data class Mark(
     val id: Int,
     val name: String,

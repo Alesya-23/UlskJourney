@@ -58,29 +58,16 @@
             app:icon="@android:drawable/stat_sys_download_done" />
     </LinearLayout>
 
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_adress_layout"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/updateMap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#20006000"
+        android:gravity="center"
+        android:text="Обновить карту"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/in_adress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/search_place_text_view"
-            android:textSize="24sp" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/in_сhange_adress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center" />
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_create_new_mark"

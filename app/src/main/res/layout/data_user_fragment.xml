@@ -57,15 +57,6 @@
             android:background="@drawable/edit_border_style"
             android:hint="@string/password"
             android:padding="15dp" />
-
-        <EditText
-            android:id="@+id/edit_text_telephone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:background="@drawable/edit_border_style"
-            android:hint="@string/telephone_edit"
-            android:padding="15dp" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
