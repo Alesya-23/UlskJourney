@@ -32,4 +32,5 @@
     <string name="button_profile">Профиль</string>
     <string name="buttonMarks">Метки</string>
     <string name="edit_text_login">Логин</string>
+    <string name="back_to_map">Вернуться на карту</string>
 </resources>

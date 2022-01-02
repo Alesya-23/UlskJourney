@@ -10,5 +10,5 @@ interface IFirebasePostService {
 
     suspend fun getListUsers(): List<User>
 
-    suspend fun getUser(id: String): User
+    suspend fun getUser(id: Int): User
 }

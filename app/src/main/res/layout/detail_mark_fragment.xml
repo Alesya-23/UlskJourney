@@ -32,7 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/mark_text_view" />
 
-    <com.google.android.material.textview.MaterialTextView
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/name_mark_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,21 +46,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/photo_place_img" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/longitude_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="30dp"
-        android:background="@drawable/edit_border_style"
-        android:hint="@string/input_longitude_edit"
-        android:padding="15dp"
-        android:textSize="22sp"
-        app:layout_constraintBottom_toTopOf="@id/latitude_text_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/name_mark_text_view" />
-
-    <com.google.android.material.textview.MaterialTextView
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/latitude_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,11 +55,26 @@
         android:hint="@string/input_latitude_edit"
         android:padding="15dp"
         android:textSize="22sp"
+        app:layout_constraintBottom_toTopOf="@id/longitude_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name_mark_text_view" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/longitude_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:background="@drawable/edit_border_style"
+        android:hint="@string/input_longitude_edit"
+        android:padding="15dp"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toTopOf="@id/description_mark_text_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/longitude_text_view" />
 
-    <com.google.android.material.textview.MaterialTextView
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/description_mark_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -84,7 +85,20 @@
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/latitude_text_view"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/longitude_text_view"
+        app:layout_constraintBottom_toTopOf="@id/button_save"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:text="@string/save_edit"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description_mark_text_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.ulskjourney.ulskjourney.R
 import com.ulskjourney.ulskjourney.databinding.SignUpFragmentBinding
+import com.ulskjourney.ulskjourney.model.database.UserStorage
+import com.ulskjourney.ulskjourney.model.models.User
 
 class SignUpFragment : Fragment(R.layout.sign_up_fragment) {
     private lateinit var signUpFragmentBinding: SignUpFragmentBinding
@@ -39,43 +41,30 @@ class SignUpFragment : Fragment(R.layout.sign_up_fragment) {
                     .addToBackStack(signInFragment.toString())
                     .replace(R.id.auth_activity, signInFragment)
                     .commit()
-        } else Toast.makeText(activity?.applicationContext, "Не все данные введены корректно", Toast.LENGTH_LONG).show()
+        } else Toast.makeText(activity?.applicationContext, "Не все данные введены корректно", Toast.LENGTH_SHORT).show()
     }
 
     private fun registerUser() {
         //add case into database
-        val map: HashMap<String, Any> =
-                hashMapOf(
-                        "id" to 1,
-                        "name" to name,
-                        "login" to login,
-                        "password" to password,
-                )
-        FirebaseAuth.getInstance().signOut()
-        //проверка есть ли такой ребёнок в бд
-        val rootRef = FirebaseDatabase.getInstance().reference.child("map").child("users")
-                .child(login)
-        rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+        var userStorage = activity?.applicationContext?.let { UserStorage(it) }
+        userStorage?.open()
+        val listUser = userStorage?.getFullList()
+        if (listUser != null) {
+            val userOur = listUser.find { it?.login == login && it.password == password }
+            if (userOur != null) {
+                isEdit = true
+                Toast.makeText(activity?.applicationContext, "Пользователь уже есть в системе", Toast.LENGTH_SHORT).show()
             }
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.child(login).exists()) {
-                    isEdit = true
-                }
-            }
-        })
+        }
         if (!isEdit) {
-            FirebaseDatabase.getInstance().reference.child("map").child("users")
-                    .child(login).setValue(map)
-            val toast: Toast = Toast.makeText(
+            userStorage?.insert(User(0, login, password, name))
+            userStorage?.close()
+            Toast.makeText(
                     activity?.applicationContext,
                     "Регистрация прошла усешно",
                     Toast.LENGTH_LONG
-            )
-            return toast.show()
-
+            ).show()
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 

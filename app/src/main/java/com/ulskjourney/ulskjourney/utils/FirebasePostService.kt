@@ -54,87 +54,90 @@ class FirebasePostService : Service(), IFirebasePostService {
 
     override suspend fun getListMarks(): ArrayList<Mark> {
         var myRef: DatabaseReference = FirebaseDatabase.getInstance().reference
-        val rootRef = FirebaseDatabase.getInstance().reference.child("map").child("marks")
-            .addValueEventListener(object :
-                ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {
-                }
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val listMark: ArrayList<Mark> = ArrayList<Mark>()
-                    for (dataSnapshot: DataSnapshot in snapshot.children) {
-                        var id =
-                            snapshot.child(dataSnapshot.key.toString()).child("id").value.toString()
-                                .toInt()
-                        var name = snapshot.child(dataSnapshot.key.toString())
-                            .child("name").value.toString()
-                        var description = snapshot.child(dataSnapshot.key.toString())
-                            .child("description").value.toString()
-                        var latitude = snapshot.child(dataSnapshot.key.toString())
-                            .child("latitude").value.toString()
-                        var longitude = snapshot.child(dataSnapshot.key.toString())
-                            .child("longitude").value.toString()
-                        listMark.add(
-                            Mark(
-                                id,
-                                name,
-                                longitude.toDouble(),
-                                latitude.toDouble(),
-                                description
-                            )
-                        )
+        val rootRef = FirebaseDatabase.getInstance().reference.child("mark")
+                .addValueEventListener(object :
+                        ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) {
                     }
-                    listMarks = listMark
-                }
-            })
+
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val listMark: ArrayList<Mark> = ArrayList<Mark>()
+                        for (dataSnapshot: DataSnapshot in snapshot.children) {
+                            var id =
+                                    snapshot.child(dataSnapshot.key.toString()).child("id").value.toString()
+                                            .toInt()
+                            var name = snapshot.child(dataSnapshot.key.toString())
+                                    .child("name").value.toString()
+                            var description = snapshot.child(dataSnapshot.key.toString())
+                                    .child("description").value.toString()
+                            var latitude = snapshot.child(dataSnapshot.key.toString())
+                                    .child("latitude").value.toString()
+                            var longitude = snapshot.child(dataSnapshot.key.toString())
+                                    .child("longitude").value.toString()
+                            var userId = snapshot.child(dataSnapshot.key.toString())
+                                    .child("userId").value.toString().toInt()
+                            listMark.add(
+                                    Mark(
+                                            id,
+                                            name,
+                                            latitude.toDouble(),
+                                            longitude.toDouble(),
+                                            description,
+                                            userId
+                                    )
+                            )
+                        }
+                        listMarks = listMark
+                    }
+                })
         return listMarks
     }
 
 
     override suspend fun getListUsers(): ArrayList<User> {
         var myRef: DatabaseReference = FirebaseDatabase.getInstance().reference
-        val rootRef = FirebaseDatabase.getInstance().reference.child("map").child("users")
-            .addValueEventListener(object :
-                ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {
-                }
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val listUser: ArrayList<User> = ArrayList<User>()
-                    for (dataSnapshot: DataSnapshot in snapshot.children) {
-                        var id =
-                            snapshot.child(dataSnapshot.key.toString()).child("id").value.toString()
-                        var name = snapshot.child(dataSnapshot.key.toString())
-                            .child("name").value.toString()
-                        var login = snapshot.child(dataSnapshot.key.toString())
-                            .child("login").value.toString()
-                        var password = snapshot.child(dataSnapshot.key.toString())
-                            .child("password").value.toString()
-                        listUser.add(
-                            User(
-                                id,
-                                name,
-                                login,
-                                password
-                            )
-                        )
+        val rootRef = FirebaseDatabase.getInstance().reference.child("user")
+                .addValueEventListener(object :
+                        ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) {
                     }
-                    listUsers = listUser
-                }
-            })
+
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val listUser: ArrayList<User> = ArrayList<User>()
+                        for (dataSnapshot: DataSnapshot in snapshot.children) {
+                            var id =
+                                    snapshot.child(dataSnapshot.key.toString()).child("id").value.toString()
+                            var name = snapshot.child(dataSnapshot.key.toString())
+                                    .child("name").value.toString()
+                            var login = snapshot.child(dataSnapshot.key.toString())
+                                    .child("login").value.toString()
+                            var password = snapshot.child(dataSnapshot.key.toString())
+                                    .child("password").value.toString()
+                            listUser.add(
+                                    User(
+                                            id.toInt(),
+                                            name,
+                                            login,
+                                            password
+                                    )
+                            )
+                        }
+                        listUsers = listUser
+                    }
+                })
         return listUsers
     }
 
-    override suspend fun getUser(id: String): User {
-        val user = listUsers.find { it.login == id }
+    override suspend fun getUser(id: Int): User {
+        val user = listUsers.find { it.id == id }
         if (user != null) {
             return user
         }
         return User(
-            id = "-1",
-            name = "Not found",
-            login = "Not found",
-            password = "none"
+                id = -1,
+                name = "Not found",
+                login = "Not found",
+                password = "none"
         )
     }
 
@@ -144,11 +147,12 @@ class FirebasePostService : Service(), IFirebasePostService {
             return mark
         }
         return Mark(
-            id = -1,
-            name = "Not found",
-            longitude = 1.0,
-            latitude = 1.0,
-            description = "none",
+                id = -1,
+                name = "Not found",
+                longitude = 1.0,
+                latitude = 1.0,
+                description = "none",
+                userId = -1
         )
     }
 }

@@ -8,43 +8,37 @@ import android.database.sqlite.SQLiteDatabase
 import com.ulskjourney.ulskjourney.model.DatabaseHelper
 import com.ulskjourney.ulskjourney.model.models.User
 
-class UserStorage {
-    var context: Context? = null
-    private var sqlHelper: DatabaseHelper? = null
-    var db: SQLiteDatabase? = null
+class UserStorage(context: Context) {
+    private var sqlHelper: DatabaseHelper = DatabaseHelper(context)
+    private var db = sqlHelper.writableDatabase
     private val TABLE = "user"
     private val COLUMN_ID = "id"
     private val COLUMN_LOGIN = "login"
     private val COLUMN_PASSWORD = "password"
     private val COLUMN_NAME = "name"
 
-    fun UserStorage(context: Context?) {
-        this.context = context
-        sqlHelper = DatabaseHelper(context)
-        db = sqlHelper!!.writableDatabase
-    }
 
-    fun open(): UserStorage? {
-        db = sqlHelper?.writableDatabase
+    fun open(): UserStorage {
+        db = sqlHelper.writableDatabase
         return this
     }
 
     fun close() {
-        db!!.close()
+        db.close()
     }
 
     fun getFullList(): List<User?> {
-        val database = sqlHelper?.readableDatabase
-        val cursor: Cursor = database!!.rawQuery("select * from $TABLE", null)
+        val database = sqlHelper.readableDatabase
+        val cursor: Cursor = database.rawQuery("select * from $TABLE", null)
         val list: MutableList<User?> = ArrayList()
         if (!cursor.moveToFirst()) {
             return list
         }
         do {
-            var id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID) )
-            var login =cursor.getString(cursor.getColumnIndex(COLUMN_LOGIN))
-            var password = cursor.getString(cursor.getColumnIndex(COLUMN_PASSWORD) )
-            var name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME) )
+            var id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+            var login = cursor.getString(cursor.getColumnIndex(COLUMN_LOGIN))
+            var password = cursor.getString(cursor.getColumnIndex(COLUMN_PASSWORD))
+            var name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
             list.add(User(id, login, password, name))
             cursor.moveToNext()
         } while (!cursor.isAfterLast)
@@ -53,22 +47,22 @@ class UserStorage {
         return list
     }
 
-    fun getElement(model: User): User? {
-        val database = sqlHelper?.readableDatabase
-        val cursor: Cursor =  database!!.rawQuery(
-            "select * from " + TABLE + " where "
-                    + COLUMN_ID + " = " + model.id, null
+    fun getElement(id: Int): User? {
+        val database = sqlHelper.readableDatabase
+        val cursor: Cursor = database.rawQuery(
+                "select * from " + TABLE + " where "
+                        + COLUMN_ID + " = " + id, null
         )
         if (!cursor.moveToFirst()) {
             return null
         }
-        var id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID) )
-        var login =cursor.getString(cursor.getColumnIndex(COLUMN_LOGIN))
-        var password = cursor.getString(cursor.getColumnIndex(COLUMN_PASSWORD) )
-        var name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME) )
+        var idUser = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+        var login = cursor.getString(cursor.getColumnIndex(COLUMN_LOGIN))
+        var password = cursor.getString(cursor.getColumnIndex(COLUMN_PASSWORD))
+        var name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
         cursor.close()
         database.close()
-        return User(id, login, password, name)
+        return User(idUser, login, password, name)
     }
 
     fun insert(model: User) {
@@ -76,15 +70,17 @@ class UserStorage {
         content.put(COLUMN_LOGIN, model.login)
         content.put(COLUMN_PASSWORD, model.password)
         content.put(COLUMN_NAME, model.name)
-        db!!.insert(TABLE, null, content)
+        val database = this.sqlHelper.writableDatabase
+        database.insert(TABLE, null, content)
     }
 
     fun update(model: User) {
         val content = ContentValues()
         content.put(COLUMN_LOGIN, model.login)
-        content.put(COLUMN_NAME, model.name)
         content.put(COLUMN_PASSWORD, model.password)
+        content.put(COLUMN_NAME, model.name)
         val where = COLUMN_ID + " = " + model.id
-        db!!.update(TABLE, content, where, null)
+        val database = this.sqlHelper.writableDatabase
+        database.update(TABLE, content, where, null)
     }
 }

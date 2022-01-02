@@ -1,15 +1,14 @@
 package com.ulskjourney.ulskjourney.view.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import com.google.firebase.database.*
 import com.ulskjourney.ulskjourney.R
 import com.ulskjourney.ulskjourney.databinding.MapFragmentBinding
+import com.ulskjourney.ulskjourney.model.database.MarkStorage
 import com.ulskjourney.ulskjourney.model.models.Mark
 import com.ulskjourney.ulskjourney.utils.Report
 import com.ulskjourney.ulskjourney.view.activities.AuthActivity
@@ -19,7 +18,6 @@ import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.runtime.image.ImageProvider
 import kotlinx.coroutines.CoroutineScope
@@ -34,57 +32,34 @@ class MapFragment : Fragment(R.layout.map_fragment) {
     private val TARGET_LOCATION = Point(54.352550, 48.389436)
     private var listener: YandexMapObjectTapListener = YandexMapObjectTapListener()
     private var listMarks: ArrayList<Mark> = ArrayList<Mark>()
-    private var userId: String = "-1"
-    private val userViewModel : UserViewModel by activityViewModels()
+    private var userId: Int = -1
+    private val userViewModel: UserViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.setApiKey(MAPKIT_API_KEY)
         MapKitFactory.initialize(this.context)
-        loadListMarks()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapBinding = MapFragmentBinding.bind(view)
         mapBinding.mapview.map
-            ?.move(
-                CameraPosition(TARGET_LOCATION, 11.0f, 0.0f, 0.0f),
-                Animation(Animation.Type.SMOOTH, 0f), null
-            )
-        createMapObject(Point(54.352550, 48.389436))
+                ?.move(
+                        CameraPosition(TARGET_LOCATION, 15.0f, 0.0f, 0.0f),
+                        Animation(Animation.Type.SMOOTH, 0f), null
+                )
         userViewModel.idUser.observe(viewLifecycleOwner, Observer {
-            userId = userViewModel.getItem().toString()
+            userId = userViewModel.getItem()!!
         })
         loadListMarks()
         buttonCreateNewMark()
         actionButtonMenu()
-        Thread.sleep(5000)
-        addMarksInMap()
         updateMapView()
+        loadMarksFromFirebase()
         activity?.title = "Карта"
     }
 
-//    private var mapObjects: MapObjectCollection? = null
-//
-//    //метод вызывается в конструкторе
-//    private fun init() {
-//        mapObjects = mapBinding.mapview.map.mapObjects.addCollection()
-//    }
-//
-//    private fun createPoints(mapMarkers: List<MapMarker>) {
-//        for (i in mapMarkers.indices) {
-//            val mapMarker: MapMarker = mapMarkers[i]
-//            val geoPoint: GeoPoint = mapMarker.getGeoPoint()
-//            val imageProvider = ImageProvider.fromBitmap(
-//                    getBitmapFromVectorDrawable(mapMarker.getDrawable()))
-//            val placemarkMapObject = mapObjects!!.addPlacemark(Point(geoPoint.getLatitude(),
-//                    geoPoint.getLongitude()), imageProvider)
-//            placemarkMapObject.userData = mapMarker.getId()
-//            placemarkMapObject.addTapListener(this)
-//        }
-//    }
-    
     private fun addMarksInMap() {
         if (listMarks.isNotEmpty())
             for (items: Mark in listMarks) {
@@ -92,40 +67,79 @@ class MapFragment : Fragment(R.layout.map_fragment) {
             }
     }
 
-    private fun createMapObject(point: Point) {
-        var mark: PlacemarkMapObject? = mapBinding.mapview?.map?.mapObjects?.addPlacemark(point)
+    private fun createMapObject(point: Point): PlacemarkMapObject? {
+        val mark: PlacemarkMapObject? = mapBinding.mapview.map?.mapObjects?.addPlacemark(point)
         mark?.opacity = 0.5f
         mark?.setIcon(ImageProvider.fromResource(activity, R.drawable.mark))
         activity?.applicationContext?.let { listener.getContext(it) }
         mark?.addTapListener(listener)
+        return mark
     }
 
     private fun loadListMarks() {
+        val markStorage = activity?.applicationContext?.let { MarkStorage(it) }
+        markStorage?.open()
+        val listMark = markStorage?.getFullList()
+        if (listMark == null) {
+            Toast.makeText(activity?.applicationContext, "Добавьте метки", Toast.LENGTH_SHORT)
+                    .show()
+        } else {
+            listMarks = listMark as ArrayList<Mark>
+            addMarksInMap()
+        }
+        markStorage?.close()
+        addMarksInMap()
+    }
+
+    private fun loadMarksFromFirebase() {
+        var listMark = ArrayList<Mark>()
         CoroutineScope(Dispatchers.Default).launch {
-            listMarks = (activity as AuthActivity).getFirebasePostService().getListMarks()
+            listMark = (activity as AuthActivity).getFirebasePostService().getListMarks()
             (activity as AuthActivity).getFirebasePostService().getListUsers()
             withContext(Dispatchers.Main) {
-                addMarksInMap()
             }
         }
+
+        val markStorage = activity?.applicationContext?.let { MarkStorage(it) }
+        markStorage?.open()
+        val listMarkDB = markStorage?.getFullList()
+        if (listMark.isEmpty()) {
+            Toast.makeText(activity?.applicationContext, "Включите интернет для синхонизации", Toast.LENGTH_SHORT)
+                    .show()
+        } else {
+            //проход по бд
+            if (listMarkDB != null) {
+                for (item in listMark) {
+                    val check = listMarkDB.find {
+                        it?.latitude == item.latitude
+                                && it.longitude == item.longitude
+                    }
+                    if (check == null)
+                        markStorage.insert(item)
+                }
+            }
+        }
+        markStorage?.close()
+
     }
 
     private fun updateMapView() {
         mapBinding.updateMap.setOnClickListener {
             loadListMarks()
             Toast.makeText(activity?.applicationContext, "Пожалуйста подождите", Toast.LENGTH_SHORT)
-                .show()
+                    .show()
+            loadMarksFromFirebase()
             addMarksInMap()
         }
     }
 
     private fun buttonCreateNewMark() {
         mapBinding.buttonCreateNewMark.setOnClickListener {
-            val addNewMarkFragment = AddNewMarkFragment()
+            val addNewMarkFragment = AddNewMarkFragment.newInstance(userId)
             parentFragmentManager.beginTransaction()
-                .addToBackStack(addNewMarkFragment.tag)
-                .replace(R.id.auth_activity, addNewMarkFragment)
-                .commit()
+                    .addToBackStack(addNewMarkFragment.tag)
+                    .replace(R.id.auth_activity, addNewMarkFragment)
+                    .commit()
         }
     }
 
@@ -134,20 +148,25 @@ class MapFragment : Fragment(R.layout.map_fragment) {
             buttonProfile.setOnClickListener {
                 val profileFragment = ProfileFragment.newInstance(userId)
                 parentFragmentManager.beginTransaction()
-                    .addToBackStack(profileFragment.tag)
-                    .replace(R.id.auth_activity, profileFragment)
-                    .commit()
+                        .addToBackStack(profileFragment.tag)
+                        .replace(R.id.auth_activity, profileFragment)
+                        .commit()
             }
             buttonListMark.setOnClickListener {
                 val listMarkFragment = ListMarkFragment()
                 parentFragmentManager.beginTransaction()
-                    .addToBackStack(listMarkFragment.tag)
-                    .replace(R.id.auth_activity, listMarkFragment)
-                    .commit()
+                        .addToBackStack(listMarkFragment.tag)
+                        .replace(R.id.auth_activity, listMarkFragment)
+                        .commit()
             }
             buttonDownloadDataMarks.setOnClickListener {
                 var report = Report()
                 report.generatePdf(listMarks)
+                Toast.makeText(
+                        activity?.applicationContext,
+                        "Готово",
+                        Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

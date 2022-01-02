@@ -4,9 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class UserViewModel : ViewModel() {
-    var idUser: MutableLiveData<String> = MutableLiveData<String>()
+    var idUser: MutableLiveData<Int> = MutableLiveData<Int>()
 
-    fun setIdUser(key: String) {
+    fun setIdUser(key: Int) {
         idUser.value = key
     }
 

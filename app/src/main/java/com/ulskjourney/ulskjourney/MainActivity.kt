@@ -2,6 +2,7 @@ package com.ulskjourney.ulskjourney
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -12,12 +13,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        if (savedInstanceState == null) {
-//            var mapFragment = MapFragment()
-//            supportFragmentManager.beginTransaction().addToBackStack(null)
-//                .replace(R.id.main, mapFragment).commit()
-//        }
-        val intent: Intent = Intent(this, AuthActivity::class.java)
-        startActivity(intent)
+        Handler().postDelayed({
+            val intent: Intent = Intent(this, AuthActivity::class.java)
+            startActivity(intent)
+        }, 3000)
+
     }
 }

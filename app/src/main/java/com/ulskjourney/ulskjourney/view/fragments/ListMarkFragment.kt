@@ -7,17 +7,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ulskjourney.ulskjourney.R
 import com.ulskjourney.ulskjourney.databinding.ListMarkFragmentBinding
+import com.ulskjourney.ulskjourney.model.database.MarkStorage
+import com.ulskjourney.ulskjourney.model.firebase.MarkFirebase
 import com.ulskjourney.ulskjourney.model.models.Mark
-import com.ulskjourney.ulskjourney.view.activities.AuthActivity
 import com.ulskjourney.ulskjourney.view.listeners.AdapterMarkList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ListMarkFragment : Fragment(R.layout.list_mark_fragment) {
     private lateinit var listMarkBinding: ListMarkFragmentBinding
     private var listMarks = ArrayList<Mark>()
+    private var adapter = AdapterMarkList(listMarks)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -25,31 +23,54 @@ class ListMarkFragment : Fragment(R.layout.list_mark_fragment) {
         activity?.title = "Список меток"
         loadListMarks()
         fullList()
+        listMarkBinding.returnToMap.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 
     private fun fullList() {
         val recyclerView = listMarkBinding.recycleMarkList
         recyclerView.layoutManager = LinearLayoutManager(activity?.applicationContext)
-        var adapter = AdapterMarkList(listMarks)
+        adapter = AdapterMarkList(listMarks)
         recyclerView.adapter = adapter
         adapter.onItemClick = { mark ->
-            Toast.makeText(
-                activity?.applicationContext,
-                "Элемент${mark.id};",
-                Toast.LENGTH_SHORT
-            ).show()
             val detailMarkFragment = DetailMarkFragment.newInstance(mark.id)
             parentFragmentManager.beginTransaction()
-                .addToBackStack(detailMarkFragment.tag)
-                .replace(R.id.auth_activity, detailMarkFragment)
-                .commit()
+                    .addToBackStack(detailMarkFragment.tag)
+                    .replace(R.id.auth_activity, detailMarkFragment)
+                    .commit()
+        }
+        adapter.onItemClickDel = { mark ->
+            deleteMark(mark.id)
         }
     }
 
-
     private fun loadListMarks() {
-        CoroutineScope(Dispatchers.Default).launch {
-            listMarks = (activity as AuthActivity).getFirebasePostService().getListMarks()
+        var markStorage = activity?.applicationContext?.let { MarkStorage(it) }
+        markStorage?.open()
+        var listMark = markStorage?.getFullList()
+        if (listMark == null) {
+            Toast.makeText(activity?.applicationContext, "Добавьте метки", Toast.LENGTH_SHORT)
+                    .show()
+        } else listMarks = listMark as ArrayList<Mark>
+        markStorage?.close()
+    }
+
+    private fun deleteMark(idMark: Int) {
+        var markStorage = activity?.applicationContext?.let { MarkStorage(it) }
+        markStorage?.open()
+        var listMark = markStorage?.getFullList()
+        if (listMark == null) {
+            Toast.makeText(activity?.applicationContext, "Добавьте метки", Toast.LENGTH_SHORT)
+                    .show()
+        } else {
+            listMark.drop(idMark)
+            listMarks = listMark as ArrayList<Mark>
+            markStorage?.delete(idMark)
+            fullList()
+            val markFirebaseLogic: MarkFirebase = MarkFirebase()
+            activity?.applicationContext?.let { markFirebaseLogic.syncUsers(it) }
         }
+        markStorage?.close()
     }
 }

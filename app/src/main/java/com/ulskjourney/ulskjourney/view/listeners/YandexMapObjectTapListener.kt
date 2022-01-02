@@ -9,7 +9,7 @@ import com.yandex.mapkit.map.MapObjectTapListener
 class YandexMapObjectTapListener() : MapObjectTapListener {
     var context: Context? = null
     override fun onMapObjectTap(mapObject: MapObject, point: Point): Boolean {
-        Toast.makeText(context, "ready", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Метка", Toast.LENGTH_LONG).show()
         //получение айдишника и открытие детального экрана
         return true
     }

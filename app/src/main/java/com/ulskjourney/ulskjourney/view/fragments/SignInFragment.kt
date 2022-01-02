@@ -12,6 +12,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.ulskjourney.ulskjourney.R
 import com.ulskjourney.ulskjourney.databinding.SignInFragmentBinding
+import com.ulskjourney.ulskjourney.model.database.UserStorage
 import com.ulskjourney.ulskjourney.model.models.User
 import com.ulskjourney.ulskjourney.viewModel.UserViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -35,25 +36,25 @@ class SignInFragment : Fragment(R.layout.sign_in_fragment) {
     }
 
     private fun signIn() {
-        var check = waitDownload()
+        val check = checkUser()
         if (check) {
             Toast.makeText(
-                activity?.applicationContext,
-                "Вход",
-                Toast.LENGTH_SHORT
+                    activity?.applicationContext,
+                    "Вход",
+                    Toast.LENGTH_SHORT
             ).show()
-            userViewModel.setIdUser(login)
+            userViewModel.setIdUser(user.id)
             val mapFragment = MapFragment()
             parentFragmentManager
-                .beginTransaction()
-                .addToBackStack(mapFragment.toString())
-                .replace(R.id.auth_activity, mapFragment)
-                .commit()
+                    .beginTransaction()
+                    .addToBackStack(mapFragment.toString())
+                    .replace(R.id.auth_activity, mapFragment)
+                    .commit()
         } else {
             Toast.makeText(
-                activity?.applicationContext,
-                "Не завершена загрузка данных. Войдите повторно.",
-                Toast.LENGTH_SHORT
+                    activity?.applicationContext,
+                    "Не завершена загрузка данных. Войдите повторно.",
+                    Toast.LENGTH_SHORT
             ).show()
         }
     }
@@ -81,34 +82,31 @@ class SignInFragment : Fragment(R.layout.sign_in_fragment) {
         if (login == loginCheck && password == passwordCheck) {
             isDataInCorrect = true
             return true
+        } else if (login == loginCheck && password != passwordCheck
+                || login != loginCheck && password == passwordCheck) {
+            Toast.makeText(
+                    activity?.applicationContext,
+                    "Проверьте корректность данных",
+                    Toast.LENGTH_SHORT
+            ).show()
+            return false
         }
         return false
     }
 
-    private fun waitDownload(): Boolean {
-        Toast.makeText(activity?.applicationContext, "Проверяем", Toast.LENGTH_SHORT).show()
-        Thread.sleep(3000)
-        return checkUser()
-    }
-
     private fun checkUser(): Boolean {
-        var rootRef = FirebaseDatabase.getInstance().reference.child("map").child("users")
-        rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.child(login).exists()) {
-                    val id = snapshot.child(login).child("id").value.toString()
-                    val name = snapshot.child(login).child("name").value.toString()
-                    val loginDB = snapshot.child(login).child("login").value.toString()
-                    val passwordDB = snapshot.child(login).child("password").value.toString()
-                    user = User (id, name, login, password)
-                    isDataInCorrect = checkDataSignIn(loginDB, passwordDB)
-                    isUserExist = true
-                }
+        val userStorage = activity?.applicationContext?.let { UserStorage(it) }
+        userStorage?.open()
+        val listUser = userStorage?.getFullList()
+        if (listUser != null) {
+            val userOur = listUser.find { it?.login == login && it.password == password }
+            if (userOur != null) {
+                user = User(userOur.id, userOur.login, userOur.password, userOur.name)
+                isDataInCorrect = checkDataSignIn(user.login, user.password)
+                isUserExist = true
             }
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+        }
+        userStorage?.close()
         if (isUserExist && isDataInCorrect) {
             return true
         }
@@ -122,19 +120,18 @@ class SignInFragment : Fragment(R.layout.sign_in_fragment) {
                     login = loginEditText.text.toString()
                     password = passwordEditText.text.toString()
                 }
-                if (checkFillFields())
-                    CoroutineScope(Dispatchers.IO).launch {
-                        checkUser()
-                    }
-                signIn()
+                if (checkFillFields()) {
+                    checkUser()
+                    signIn()
+                }
             }
             signUpButton.setOnClickListener {
                 val signUpFragment = SignUpFragment()
                 parentFragmentManager
-                    .beginTransaction()
-                    .addToBackStack(signUpFragment.toString())
-                    .replace(R.id.auth_activity, signUpFragment)
-                    .commit()
+                        .beginTransaction()
+                        .addToBackStack(signUpFragment.toString())
+                        .replace(R.id.auth_activity, signUpFragment)
+                        .commit()
             }
         }
     }
